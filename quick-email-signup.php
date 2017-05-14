@@ -160,8 +160,11 @@ class Quick_Email_Signup {
       wp_die( 'The email adress is not valid.' );
 
     // Check if exists allready
-    if ( username_exists( $email ) || email_exists( $email ) )
-      wp_die( 'User allready exists. Please provide a separate email or try to log in.');
+    if ( username_exists( $email ) || email_exists( $email ) ) {
+			do_action('qe_signup_user_exists', $email );
+      wp_die( apply_filters( 'qe_signup_user_exists_message', __('User allready exists.','qe-signup') ) );
+		}
+
 
     // At this point we can safely just create the user https://tommcfarlin.com/create-a-user-in-wordpress/
     $password = wp_generate_password( 12, true );
