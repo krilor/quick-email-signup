@@ -110,7 +110,6 @@ class Quick_Email_Signup {
     /* Localized JS variables */
 		wp_localize_script( 'qe-signup', 'qe_signup', array(
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
-      'success_message' => __( 'User successfully created. Follow instructions in email.', 'qe-status'),
       'error_message' => __( 'Ooops. Something went wrong. Try again later.', 'qe-status'),
       'processing_message' => __( 'Processing your request.', 'qe-status')
 		));
@@ -147,22 +146,22 @@ class Quick_Email_Signup {
 
     // Verify nonce
     if( !isset( $_POST['nonce'] ) || !wp_verify_nonce( $_POST['nonce'], 'qes_new_user' ) )
-      wp_die( 'Ooops, something went wrong, please try again later.' );
+      wp_send_json_error( 'Ooops, something went wrong, please try again later.' );
 
     // Verify email exists
     if( !isset( $_POST['email'] ) )
-      wp_die( 'Please provide an email address.' );
+      wp_send_json_error( 'Please provide an email address.' );
 
     $email = sanitize_text_field( $_POST[ 'email' ] );
 
     // Verify email address
     if ( !is_email( $email ) )
-      wp_die( 'The email adress is not valid.' );
+      wp_send_json_error( 'The email adress is not valid.' );
 
     // Check if exists allready
     if ( username_exists( $email ) || email_exists( $email ) ) {
 			do_action('qe_signup_user_exists', $email );
-      wp_die( apply_filters( 'qe_signup_user_exists_message', __('User allready exists.','qe-signup') ) );
+      wp_send_json_error( apply_filters( 'qe_signup_user_exists_message', __('User allready exists.','qe-signup') ) );
 		}
 
 
@@ -179,7 +178,7 @@ class Quick_Email_Signup {
     wp_update_user(
       array(
         'ID' => $user_id,
-        'nickname' =>  $nickname// first part of email only
+        'nickname' =>  $nickname // first part of email only
       )
     );
     $user->set_role( $role );
@@ -187,9 +186,8 @@ class Quick_Email_Signup {
     // Do whatever you want to the newly created user by accessing this action.
     do_action('qe_signup_user_created', $email, $password, $user_id );
 
-    echo "USER_CREATED";
+    wp_send_json_success( "User has been created." );
 
-    wp_die(); // allways die
   }
 
 }

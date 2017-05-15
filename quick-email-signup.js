@@ -31,43 +31,42 @@ jQuery(document).ready(function($) {
     $.ajax({
       url: qe_signup.ajax_url,
       type: 'post',
+      dataType: 'json',
       data: {
         action: 'qes_add_user',
         nonce: reg_nonce,
         email: reg_email
       },
-      success: function(response) {
+      success: function( response ) {
 
-        // If we have response
-        if( response ) {
+        status.hide();
+        status.removeClass('processing').removeClass('success').removeClass('error');
 
-          // Hide 'Please wait' indicator
-          status.hide();
-          status.removeClass('processing').removeClass('success').removeClass('error');
 
-          if( response === 'USER_CREATED' ) {
-            // If user is created
-            status.html( qe_signup.success_message ); // Add success message to results div
-            status.addClass('success'); // Add class success to results div
-            status.show(); // Show results div
-            $('#qes_email').val('');
+        if( response.success && response.data ) {
 
-          } else {
-            status.html( response ); // If there was an error, display it in results div
-            status.addClass('error'); // Add class failed to results div
-            status.show(); // Show results div
-          }
+          status.html( response.data ); // Add success message to results div
+          status.addClass('success'); // Add class success to results div
+          status.show(); // Show results div
+          $('#qes_email').val('');
+
         } else {
-          status.html( qe_signup.error_message  ); // If there was an error, display it in results div
+
+          status.html( response.data ? response.data : qe_signup.error_message ); // If there was an error, display it in results div
           status.addClass('error'); // Add class failed to results div
           status.show(); // Show results div
+
         }
+
       },
       error: function(response) {
+
+        status.hide();
         status.removeClass('processing').removeClass('success').removeClass('error');
         status.html( qe_signup.error_message  ); // If there was an error, display it in results div
         status.addClass('error'); // Add class failed to results div
         status.show(); // Show results div
+
       }
     });
   });
